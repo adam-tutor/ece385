@@ -5,31 +5,31 @@ Given the limitations of both SystemVerilog and the FPGA Board itself, a lot of 
 The following were designed and programmed by Adam Tutor and Alexis Santos:
 
 
-  USB Keyboard protocol
+  • USB Keyboard protocol
 
-  Standard VGA controller protocol
+  • Standard VGA controller protocol
 
-  A/D and D/A conversion
+  • A/D and D/A conversion
 
-  2-1, 4-1, 5-1 MUXs
+  • 2-1, 4-1, 5-1 MUXs
 
-  NIOS II soft-CPU based ystem-on-chip platform
+  • NIOS II soft-CPU based ystem-on-chip platform
 
-  Simplified LC-3 microprocessor
+  • Simplified LC-3 microprocessor
 
   
 
-  Collision detection
+  • Collision detection
 
-  Custom sprites
+  • Custom sprites
 
-  Mapping algorithm (from sprite sheet to screen)
+  • Mapping algorithm (from sprite sheet to screen)
 
-  Color mapping
+  • Color mapping
 
-  Functioning scoreboard and counter
+  • Functioning scoreboard and counter
 
-  Ghost behavior
+  • Ghost AI behavior
 
-  Collectable pellets and pellet count
+  • Collectable pellets and pellet count
   
