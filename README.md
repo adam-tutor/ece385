@@ -13,7 +13,7 @@ The following were designed and programmed by Adam Tutor and Alexis Santos:
 
   • 2-1, 4-1, 5-1 MUXs
 
-  • NIOS II soft-CPU based ystem-on-chip platform
+  • NIOS II soft-CPU based system-on-chip platform
 
   • Simplified LC-3 microprocessor
 
