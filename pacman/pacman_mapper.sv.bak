@@ -1,0 +1,149 @@
+module pacman_mapper (
+	input logic [9:0] DrawX, DrawY, BallX, BallY, Ball_size,
+	input logic vga_clk, blank,
+	output logic [3:0] Red, Green, Blue,
+	output logic UpMove, DownMove, LeftMove, RightMove
+);
+
+logic [16:0] rom_address;
+logic [3:0] rom_q;
+
+logic [3:0] palette_red, palette_green, palette_blue;
+logic [3:0] red, green, blue;
+logic [3:0] Pred, Pgreen, Pblue;
+
+assign Pred = 4'hf;
+assign Pgreen = 4'hc;
+assign Pblue = 4'h0;
+assign rom_address = (DrawX*320/640) + (DrawY*120/480 * 320);
+
+always_ff @ (posedge vga_clk) begin
+	red <= 4'h0;
+	green <= 4'h0;
+	blue <= 4'h0;
+
+	if (blank) begin
+		red <= palette_red;
+		green <= palette_green;
+		blue <= palette_blue;
+	end
+end
+
+pacman_rom pacman_rom (
+	.clock   (vga_clk),
+	.address (rom_address),
+	.q       (rom_q)
+);
+
+pacman_palette pacman_palette (
+	.index (rom_q),
+	.red   (palette_red),
+	.green (palette_green),
+	.blue  (palette_blue)
+);
+
+//PACMANpng_mapper PACMANpng_mapper(.DrawX(DrawX), .DrawY(DrawY), .vga_clk(vga_clk), .blank(blank), .red(Pred), .green(Pgreen), .blue(Pblue));
+
+logic ball_on;
+	 
+ /* Old Ball: Generated square box by checking if the current pixel is within a square of length
+    2*Ball_Size, centered at (BallX, BallY).  Note that this requires unsigned comparisons.
+	 
+    if ((DrawX >= BallX - Ball_size) &&
+       (DrawX <= BallX + Ball_size) &&
+       (DrawY >= BallY - Ball_size) &&
+       (DrawY <= BallY + Ball_size))
+
+     New Ball: Generates (pixelated) circle by using the standard circle formula.  Note that while 
+     this single line is quite powerful descriptively, it causes the synthesis tool to use up three
+     of the 12 available multipliers on the chip!  Since the multiplicants are required to be signed,
+	  we have to first cast them from logic to int (signed by default) before they are multiplied). */
+	  
+    int DistX, DistY, Size, SizeX;
+	 assign DistX = DrawX - BallX;
+    assign DistY = DrawY - BallY;
+    assign Size = Ball_size + 1;
+	 assign SizeX = Ball_size - 6;
+	  
+    always_comb
+    begin:Ball_on_proc
+        if ((((BallX-SizeX) <= DrawX && DrawX <= (BallX+SizeX))) && (((BallY-Size) <= DrawY && DrawY <= (BallY+Size))))
+            ball_on = 1'b1;
+        else 
+            ball_on = 1'b0;
+     end 
+       
+    always_comb
+    begin:RGB_Display
+        if ((ball_on == 1'b1)) 
+        begin 
+            Red = Pred;
+            Green = Pgreen;
+            Blue = Pblue;
+        end       
+        else 
+        begin 
+            Red = red; 
+            Green = green;
+            Blue = blue;
+        end      
+    end 
+	 
+
+logic [16:0] Urom_address, Drom_address, Lrom_address, Rrom_address, Prom_address;
+logic [2:0] Urom_q, Drom_q, Lrom_q, Rrom_q;
+logic [9:0] Up, Down, Left, Right;
+
+assign Up = BallY - Ball_size;
+assign Down = BallY + Ball_size;
+assign Left = BallX - Ball_size;
+assign Right = BallX + Ball_size;
+
+assign Urom_address = (BallX*200/640) + ((Up-1'd1)*221/480 * 200);
+assign Drom_address = (BallX*200/640) + ((Down+1'd1)*221/480 * 200);
+assign Lrom_address = ((Left - 1'd1)*200/640) + (BallY*221/480 * 200);
+assign Rrom_address = ((Right + 1'd1)*200/640) + (BallY*221/480 * 200);
+ 
+pacman_rom Urom(.clock(vga_clk), .address(Urom_address), .q(Urom_q));
+
+pacman_rom Drom(.clock(vga_clk), .address(Drom_address), .q(Drom_q));
+
+pacman_rom Rrom(.clock(vga_clk), .address(Rrom_address), .q(Rrom_q));
+
+pacman_rom Lrom(.clock(vga_clk), .address(Lrom_address), .q(Lrom_q));
+
+always_comb begin
+
+if(Urom_q == 3'd3) begin
+UpMove = 1'b0;
+end
+else begin
+UpMove = 1'b1;
+end
+
+if(Drom_q == 3'd3) begin
+DownMove = 1'b0;
+end
+else begin
+DownMove = 1'b1;
+end
+
+if(Lrom_q == 3'd3) begin
+LeftMove = 1'b0;
+end
+else begin
+LeftMove = 1'b1;
+end
+
+if(Rrom_q == 3'd3) begin
+RightMove = 1'b0;
+end
+else begin
+RightMove = 1'b1;
+end
+
+end
+
+
+endmodule
+
